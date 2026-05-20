@@ -1,0 +1,157 @@
+﻿@page "/users"
+@rendermode InteractiveServer
+@using BlazorApp1.Models
+@using BlazorApp1.Services
+@inject UserService UserService
+
+<h3>Users (@(users.Count))</h3>
+
+<div>
+    order by
+
+    <select @bind="selectedSort">
+        @foreach (var item in Enum.GetValues<SortType>())
+        {
+            <option value="@item">@item</option>
+        }
+    </select>
+</div>
+
+<hr />
+
+<input class="form-control-sm" @bind="name" placeholder="name" />
+<input class="form-control-sm" @bind="email" placeholder="email" />
+
+<button class="btn btn-secondary" @onclick="GenerateMail" disabled="@(!IsGenerateMailBtnEnabled)">Generate mail</button>
+
+<button class="btn btn-primary" @onclick="AddUser" disabled="@(!IsAddBtnEnabled)">Add</button>
+
+<hr />
+
+<table class="table table-bordered">
+    <thead class="table-secondary">
+        <tr>
+            <th>Név</th>
+            <th>Mail</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in SortedUsers)
+        {
+            <tr>
+                <td>@u.Name</td>
+                <td>
+                    @u.Email
+                    @if (u.IsValidMail)
+                    {
+                        <i class="bi bi-check text-success"></i>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-danger" @onclick="() => AskDelete(u)">X</button>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+@code {
+    List<User> users = new();
+
+    SortType selectedSort = SortType.Name;
+
+    string name = "";
+    string email = "";
+
+    User? userToDelete;
+
+    bool IsAddBtnEnabled => !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email);
+    bool IsGenerateMailBtnEnabled => !string.IsNullOrEmpty(name);
+
+    IEnumerable<User> SortedUsers => selectedSort switch
+    {
+        SortType.Name => users.OrderBy(x => x.Name),
+        SortType.Email => users.OrderBy(x => x.Email),
+        SortType.Id => users.OrderBy(x => x.Id),
+        SortType.EmailValidity => users.OrderBy(x => !x.IsValidMail).ThenBy(x => x.Email),
+        SortType.NameLength => users.OrderBy(x => x.Name.Length),
+        _ => users
+    };
+
+    protected override void OnInitialized()
+    {
+        users = UserService.GetAll();
+    }
+
+    void GenerateMail() { email = $"{name}@nanoworx.hu"; }
+
+    void AddUser()
+    {
+        UserService.Add(name, email);
+
+        users = UserService.GetAll();
+
+        name = "";
+        email = "";
+    }
+
+    void Delete(int id)
+    {
+        UserService.Delete(id);
+        users = UserService.GetAll();
+    }
+
+    void AskDelete(User user)
+    {
+        userToDelete = user;
+    }
+
+    void ConfirmDelete()
+    {
+        UserService.Delete(userToDelete!.Id);
+
+        users = UserService.GetAll();
+
+        userToDelete = null;
+    }
+
+    void CancelDelete()
+    {
+        userToDelete = null;
+    }
+
+    enum SortType
+    {
+        Id,
+        Name,
+        Email,
+        NameLength,
+        EmailValidity
+    }
+}
+
+@if (userToDelete != null)
+{
+    <div style="
+                                                position:fixed;
+                                                inset:0;
+                                                background:rgba(0,0,0,.5);
+                                                display:flex;
+                                                align-items:center;
+                                                justify-content:center;">
+
+        <div style="
+                                                    background:white;
+                                                    padding:20px;
+                                                    border-radius:8px;">
+
+            <p>Törlöd ezt: <b>@userToDelete.Name</b>?</p>
+
+            <button class="btn btn-primary" @onclick="ConfirmDelete">Igen</button>
+            <button class="btn btn-secondary" @onclick="CancelDelete">Mégse</button>
+
+        </div>
+    </div>
+}

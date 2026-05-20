@@ -1,0 +1,65 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">BlazorApp1</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        @*  <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+                <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div> *@
+
+        @foreach (var item in MenuItems)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@(item.Href)" Match="item.NavLinkMatch">
+                    <span class="bi bi-@(item.Icon) nav-icon" aria-hidden="true"></span> @(item.Name)
+                </NavLink>
+            </div>
+        }
+
+    </nav>
+</div>
+
+@code {
+    private class MenuItem
+    {
+        public MenuItem(string href, string name, string icon, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix)
+        {
+            Href = href;
+            Name = name;
+            Icon = icon;
+            NavLinkMatch = navLinkMatch;
+        }
+
+        public string Href { get; set; }
+        public string Name { get; set; }
+        public string Icon { get; set; }
+        public NavLinkMatch NavLinkMatch { get; set; }
+    }
+
+    private List<MenuItem> MenuItems = new()
+    {
+        new MenuItem("","Home","house-door-fill"),
+        new MenuItem("counter","Counter","plus-square-fill"),
+        new MenuItem("weather","Weather","list-nested"),
+        new MenuItem("users","Users","bookmark")
+    };
+}
