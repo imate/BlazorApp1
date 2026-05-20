@@ -19,8 +19,8 @@
 
 <hr />
 
-<input class="form-control-sm" @bind="name" placeholder="name" />
-<input class="form-control-sm" @bind="email" placeholder="email" />
+<input class="form-control-sm" @bind="name" @bind:event="oninput" placeholder="name" />
+<input class="form-control-sm" @bind="email" @bind:event="oninput" placeholder="email" />
 
 <button class="btn btn-secondary" @onclick="GenerateMail" disabled="@(!IsGenerateMailBtnEnabled)">Generate mail</button>
 
@@ -59,6 +59,7 @@
 
 @code {
     List<User> users = new();
+    string errorMessage = "";
 
     SortType selectedSort = SortType.Name;
 
@@ -89,12 +90,20 @@
 
     void AddUser()
     {
-        UserService.Add(name, email);
+        try
+        {
+            UserService.Add(name, email);
 
-        users = UserService.GetAll();
+            users = UserService.GetAll();
 
-        name = "";
-        email = "";
+            name = "";
+            email = "";
+            errorMessage = "";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
     }
 
     void Delete(int id)
@@ -153,5 +162,12 @@
             <button class="btn btn-secondary" @onclick="CancelDelete">Mégse</button>
 
         </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
     </div>
 }

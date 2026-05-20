@@ -11,6 +11,10 @@ namespace BlazorApp1.Services
 
         public void Add(string name, string email)
         {
+            if (!string.IsNullOrEmpty(email) && users.Any(x => x.Email == email)) {
+                throw new Exception("No no! Van már ilyen mail!!");
+            }
+
             users.Add(new User
             {
                 Id = nextId++,
