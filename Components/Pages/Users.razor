@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using BlazorApp1.Models
 @using BlazorApp1.Services
+@using BlazorApp1.Components.Shared
 @inject UserService UserService
 
 <h3>Users (@(users.Count))</h3>
@@ -49,6 +50,10 @@
                     }
                 </td>
                 <td>
+                    <button class="btn btn-warning"
+                            @onclick="() => Edit(u)">
+                        Edit
+                    </button>
                     <button class="btn btn-danger" @onclick="() => AskDelete(u)">X</button>
                 </td>
             </tr>
@@ -67,6 +72,9 @@
     string email = "";
 
     User? userToDelete;
+    User? editingUser;
+
+    bool IsEditing => editingUser != null;
 
     bool IsAddBtnEnabled => !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email);
     bool IsGenerateMailBtnEnabled => !string.IsNullOrEmpty(name);
@@ -112,6 +120,14 @@
         users = UserService.GetAll();
     }
 
+    void Edit(User user)
+    {
+        editingUser = user;
+
+        name = user.Name;
+        email = user.Email;
+    }
+
     void AskDelete(User user)
     {
         userToDelete = user;
@@ -141,29 +157,18 @@
     }
 }
 
-@if (userToDelete != null)
-{
-    <div style="
-                                                position:fixed;
-                                                inset:0;
-                                                background:rgba(0,0,0,.5);
-                                                display:flex;
-                                                align-items:center;
-                                                justify-content:center;">
+<Modal Visible="@(userToDelete != null)">
 
-        <div style="
-                                                    background:white;
-                                                    padding:20px;
-                                                    border-radius:8px;">
+    <p>
+        Törlöd ezt:
+        <b>@userToDelete?.Name</b>?
+    </p>
 
-            <p>Törlöd ezt: <b>@userToDelete.Name</b>?</p>
+    <button class="btn btn-primary"            @onclick="ConfirmDelete">        Igen    </button>
 
-            <button class="btn btn-primary" @onclick="ConfirmDelete">Igen</button>
-            <button class="btn btn-secondary" @onclick="CancelDelete">Mégse</button>
+    <button class="btn btn-secondary"            @onclick="CancelDelete">        Mégse    </button>
 
-        </div>
-    </div>
-}
+</Modal>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {

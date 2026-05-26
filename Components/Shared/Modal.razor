@@ -1,0 +1,22 @@
+﻿@if (Visible)
+{
+    <div class="modal-backdrop-custom">
+
+        <div class="modal-content-custom">
+
+            @ChildContent
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+}
