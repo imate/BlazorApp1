@@ -72,9 +72,11 @@
     string email = "";
 
     User? userToDelete;
+    bool showDeleteModal = false;
     User? editingUser;
 
     bool IsEditing => editingUser != null;
+
 
     bool IsAddBtnEnabled => !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(email);
     bool IsGenerateMailBtnEnabled => !string.IsNullOrEmpty(name);
@@ -131,6 +133,13 @@
     void AskDelete(User user)
     {
         userToDelete = user;
+        showDeleteModal = true;
+    }
+
+    void CloseDelete()
+    {
+        showDeleteModal = false;
+        userToDelete = null;
     }
 
     void ConfirmDelete()
@@ -139,7 +148,7 @@
 
         users = UserService.GetAll();
 
-        userToDelete = null;
+        CloseDelete();
     }
 
     void CancelDelete()
@@ -157,18 +166,25 @@
     }
 }
 
-<Modal Visible="@(userToDelete != null)">
+<BootstrapModal Visible="@showDeleteModal"
+                Title="Delete user"
+                OnClose="CloseDelete">
 
     <p>
-        Törlöd ezt:
-        <b>@userToDelete?.Name</b>?
+        Törlöd ezt: <b>@userToDelete?.Name</b>?
     </p>
 
-    <button class="btn btn-primary"            @onclick="ConfirmDelete">        Igen    </button>
+    <button class="btn btn-danger"
+            @onclick="ConfirmDelete">
+        Igen
+    </button>
 
-    <button class="btn btn-secondary"            @onclick="CancelDelete">        Mégse    </button>
+    <button class="btn btn-secondary"
+            @onclick="CloseDelete">
+        Mégse
+    </button>
 
-</Modal>
+</BootstrapModal>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
