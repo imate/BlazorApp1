@@ -23,9 +23,19 @@
 <input class="form-control-sm" @bind="name" @bind:event="oninput" placeholder="name" />
 <input class="form-control-sm" @bind="email" @bind:event="oninput" placeholder="email" />
 
-<button class="btn btn-secondary" @onclick="GenerateMail" disabled="@(!IsGenerateMailBtnEnabled)">Generate mail</button>
+|
+<NanoButton ColorScheme="secondary" @onclick="GenerateMail" Disabled="@(!IsGenerateMailBtnEnabled)" Title="Generate mail" Icon="at"></NanoButton>
+|
 
-<button class="btn btn-primary" @onclick="AddUser" disabled="@(!IsAddBtnEnabled)">Add</button>
+@if (!IsEditing)
+{
+    <NanoButton onclick="AddUser" Disabled="@(!IsAddBtnEnabled)" Icon="plus"></NanoButton>
+}
+else
+{
+    <NanoButton OnClick="SaveUser" Disabled="@(!IsAddBtnEnabled)" Title="Save" Icon="check"></NanoButton>
+    <NanoButton ColorScheme="secondary" OnClick="CancelEdit" Title="Cancel" Icon="close"></NanoButton>
+}
 
 <hr />
 
@@ -50,11 +60,8 @@
                     }
                 </td>
                 <td>
-                    <button class="btn btn-warning"
-                            @onclick="() => Edit(u)">
-                        Edit
-                    </button>
-                    <button class="btn btn-danger" @onclick="() => AskDelete(u)">X</button>
+                    <NanoButton ColorScheme="warning" OnClick="() => Edit(u)" Title="Edit"></NanoButton>
+                    <NanoButton ColorScheme="danger" OnClick="() => AskDelete(u)" Icon="x"></NanoButton>
                 </td>
             </tr>
 
@@ -116,6 +123,36 @@
         }
     }
 
+    void SaveUser()
+    {
+        if (editingUser == null)
+            return;
+
+        try
+        {
+            UserService.Update(editingUser.Id, name, email);
+
+            users = UserService.GetAll();
+
+            editingUser = null;
+            name = "";
+            email = "";
+            errorMessage = "";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    void CancelEdit()
+    {
+        editingUser = null;
+        name = "";
+        email = "";
+        errorMessage = "";
+    }
+
     void Delete(int id)
     {
         UserService.Delete(id);
@@ -144,7 +181,13 @@
 
     void ConfirmDelete()
     {
-        UserService.Delete(userToDelete!.Id);
+        if (userToDelete == null)
+        {
+            CloseDelete();
+            return;
+        }
+
+        UserService.Delete(userToDelete.Id);
 
         users = UserService.GetAll();
 
@@ -166,23 +209,15 @@
     }
 }
 
-<BootstrapModal Visible="@showDeleteModal"
-                Title="Delete user"
-                OnClose="CloseDelete">
+<BootstrapModal Visible="@showDeleteModal" Title="Delete user" OnClose="CloseDelete">
 
     <p>
         Törlöd ezt: <b>@userToDelete?.Name</b>?
     </p>
 
-    <button class="btn btn-danger"
-            @onclick="ConfirmDelete">
-        Igen
-    </button>
+    <button class="btn btn-danger" @onclick="ConfirmDelete">Igen</button>
 
-    <button class="btn btn-secondary"
-            @onclick="CloseDelete">
-        Mégse
-    </button>
+    <button class="btn btn-secondary" @onclick="CloseDelete">Mégse</button>
 
 </BootstrapModal>
 
