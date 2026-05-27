@@ -24,7 +24,7 @@
 <input class="form-control-sm" @bind="email" @bind:event="oninput" placeholder="email" />
 
 |
-<NanoButton ColorScheme="secondary" @onclick="GenerateMail" Disabled="@(!IsGenerateMailBtnEnabled)" Title="Generate mail" Icon="at"></NanoButton>
+<NanoButton ColorScheme="secondary" @onclick="GenerateMail" Disabled="@(!IsGenerateMailBtnEnabled)" Text="Generate mail" Icon="at"></NanoButton>
 |
 
 @if (!IsEditing)
@@ -33,8 +33,8 @@
 }
 else
 {
-    <NanoButton OnClick="SaveUser" Disabled="@(!IsAddBtnEnabled)" Title="Save" Icon="check"></NanoButton>
-    <NanoButton ColorScheme="secondary" OnClick="CancelEdit" Title="Cancel" Icon="close"></NanoButton>
+    <NanoButton OnClick="SaveUser" Disabled="@(!IsAddBtnEnabled)" Text="Save" Icon="check"></NanoButton>
+    <NanoButton ColorScheme="secondary" OnClick="CancelEdit" Text="Cancel" Icon="x"></NanoButton>
 }
 
 <hr />
@@ -61,8 +61,8 @@ else
                     }
                 </td>
                 <td>
-                    <NanoButton ColorScheme="warning" OnClick="() => Edit(u)" Title="Edit"></NanoButton>
-                    <NanoButton ColorScheme="danger" OnClick="() => AskDelete(u)" Icon="x"></NanoButton>
+                    <NanoButton ColorScheme="warning" OnClick="() => Edit(u)" icon="pen"></NanoButton>
+                    <NanoButton ColorScheme="danger" OnClick="() => AskDelete(u)" Icon="trash"></NanoButton>
                 </td>
             </tr>
 
@@ -210,17 +210,17 @@ else
     }
 }
 
-<BootstrapModal Visible="@showDeleteModal" Title="Delete user" OnClose="CloseDelete">
+<NanoModal Visible="@showDeleteModal" Title="Delete user" OnClose="CloseDelete">
 
     <p>
         Törlöd ezt: <b>@userToDelete?.Name</b>?
     </p>
 
-    <button class="btn btn-danger" @onclick="ConfirmDelete">Igen</button>
+    <NanoButton ColorScheme="danger" OnClick="ConfirmDelete" Text="Igen" Icon="trash"></NanoButton>
+    <NanoButton ColorScheme="secondary" OnClick="CloseDelete" Text="Mégse" Icon="x"></NanoButton>
 
-    <button class="btn btn-secondary" @onclick="CloseDelete">Mégse</button>
 
-</BootstrapModal>
+</NanoModal>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
