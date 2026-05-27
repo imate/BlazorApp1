@@ -104,7 +104,7 @@ else
         users = UserService.GetAll();
     }
 
-    void GenerateMail() { email = $"{name}@nanoworx.hu"; }
+    void GenerateMail() { email = UserService.GenerateMail(name); }
 
     void AddUser()
     {
